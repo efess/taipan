@@ -1,7 +1,11 @@
 import Html exposing (Html, div, h1, section, text)
 import Html.App as App
 import Html.Attributes exposing (class, id)
-import Firmname
+import Messages exposing (..)
+import Models exposing (AppModel)
+import GameState exposing (..)
+import Screen.Title
+import Screen.NewGame
 
 main = App.beginnerProgram {
     model = model, 
@@ -9,36 +13,30 @@ main = App.beginnerProgram {
     update = update
   }
 
-
-type alias AppModel = 
-  {
-    firmname : Firmname.Model
-  }
-
 model : AppModel
 model = { 
-    firmname = Firmname.model
+    firm = { name = ""},
+    gameState = GameState.Title
   }
 
-
-type Msg = 
-  FirmnameMsg Firmname.Msg
-
-update : Msg -> AppModel -> AppModel
+update : AppMsg -> AppModel -> AppModel
 update msg model = 
   case msg of
-    FirmnameMsg s -> { model | firmname = Firmname.update s model.firmname }
+    StateChange gs -> { model | gameState = gs }
 
+screen: AppModel -> Html AppMsg
+screen model =
+  case model.gameState of
+    Title -> Screen.Title.view model
+    NewGame -> Screen.NewGame.view model
 
-view : AppModel -> Html Msg
+view : AppModel -> Html AppMsg
 view model = 
   div 
     [class "wrapper", id "maincontainer"]
     [
       h1 [] [text "Taipan"],
-      section [class "mainsection"] [
-        App.map FirmnameMsg (Firmname.view model.firmname)
-      ]
+      section [class "mainsection"] [ screen model ]
     ]
   
 
